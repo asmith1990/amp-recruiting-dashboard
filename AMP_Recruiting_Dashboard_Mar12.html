@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AMP Recruiting Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif; background: #f5f7fa; color: #1a3a5c; }
+  input:focus, select:focus { border-color: #1a6faf !important; }
+  input[type=number]::-webkit-inner-spin-button { opacity: 1; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #f0f3f6; }
+  ::-webkit-scrollbar-thumb { background: #c5cdd6; border-radius: 10px; }
+  table { border-collapse: collapse; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useMemo } = React;
+
+const INITIAL_OPEN_REQS = [
+  { id: 3047, jobTitle: "Aesthetics Injector PA/NP/RN", type: "Additional", recruiter: "Alleyne, Rodcliffe", location: "Ever Body - Williamsburg", brand: "Ever/Body", days: 122, lastActivity: "2025-10-30" },
+  { id: 3405, jobTitle: "Injector", type: "Replacement", recruiter: "Wells, JD", location: "Avelure - Rochester Hills", brand: "Avelure", days: 55, lastActivity: "2026-01-22" },
+  { id: 3441, jobTitle: "Aesthetics Injector PA/NP/RN", type: "Replacement", recruiter: "Wells, JD", location: "Ever Body - North Haven", brand: "Ever/Body", days: 27, lastActivity: "2026-01-21" },
+  { id: 3481, jobTitle: "Aesthetics Injector PA/NP/RN", type: "Replacement", recruiter: "Wells, JD", location: "Ever Body - Logan Circle", brand: "Ever/Body", days: 27, lastActivity: "2026-01-26" },
+  { id: 3488, jobTitle: "Aesthetics Injector PA/NP/RN", type: "Additional", recruiter: "Wells, JD", location: "Ever Body - Williamsburg", brand: "Ever/Body", days: 27, lastActivity: "2026-01-25" },
+  { id: 3508, jobTitle: "Aesthetics Injector PA/NP/RN", type: "Replacement", recruiter: "Wells, JD", location: "Ever Body - Stamford", brand: "Ever/Body", days: 27, lastActivity: "2026-01-20" },
+  { id: 3525, jobTitle: "Experienced Nurse Injector", type: "Additional", recruiter: "Waters, Samantha", location: "Destination Aesthetics - Folsom", brand: "Destination Aesthetics", days: 28, lastActivity: "2026-01-25" },
+  { id: 3530, jobTitle: "Per-Diem PACU Registered Nurse", type: "Additional", recruiter: "Wells, JD", location: "New Radiance - Palm Beach Gardens", brand: "New Radiance", days: 20, lastActivity: "2026-01-24" },
+  { id: 3531, jobTitle: "Per-Diem CRNA", type: "Additional", recruiter: "Wells, JD", location: "New Radiance - Palm Beach Gardens", brand: "New Radiance", days: 38, lastActivity: "2026-01-30" },
+  { id: 3626, jobTitle: "Functional Medicine NP or PA", type: "Additional", recruiter: "Wells, JD", location: "Living Young - Palm Harbor", brand: "Living Young", days: 28, lastActivity: "2026-02-12" },
+  { id: 3641, jobTitle: "Aesthetics Injector PA/NP/RN", type: "Additional", recruiter: "Laccavole, Lauren", location: "Ever Body - South Windsor", brand: "Ever/Body", days: 7, lastActivity: "2026-01-24" },
+  { id: 3642, jobTitle: "Aesthetics Injector PA/NP/RN", type: "Additional", recruiter: "Laccavole, Lauren", location: "Ever Body - Hartford", brand: "Ever/Body", days: 7, lastActivity: "2026-01-25" },
+  { id: 3721, jobTitle: "Registered Nurse", type: "Replacement", recruiter: "Nieves, Sarah", location: "Avelure - Novi", brand: "Avelure", days: 2, lastActivity: "2026-01-29" },
+  { id: 3746, jobTitle: "Aesthetics Injector PA/NP/RN", type: "Additional", recruiter: "Wells, JD", location: "Curate - Chattanooga", brand: "Curate", days: 2, lastActivity: "2026-02-05" },
+  { id: 3832, jobTitle: "Experienced Aesthetics Injector PA/NP", type: "Additional", recruiter: "Wells, JD", location: "Pur Skin Clinic - Edmonds", brand: "Pur Skin Clinic", days: 7, lastActivity: "2026-02-18" },
+  { id: 3848, jobTitle: "Registered Nurse", type: "Replacement", recruiter: "Kunstel, Sara", location: "Avelure - Sunset Hills", brand: "Avelure", days: 1, lastActivity: "2026-02-19" },
+  { id: 3849, jobTitle: "Registered Nurse", type: "Replacement", recruiter: "Wells, JD", location: "Avelure - Creve Coeur", brand: "Avelure", days: 1, lastActivity: "" },
+  { id: 3882, jobTitle: "Breast & Body Plastic Surgeon", type: "Replacement", recruiter: "Dickerson, Amy", location: "22 Spa MD", brand: "22", days: 4, lastActivity: "" },
+  { id: 3901, jobTitle: "Experienced Aesthetic Injector", type: "Additional", recruiter: "Taylor, Sheena", location: "Living Young - Seminole", brand: "Living Young", days: 2, lastActivity: "" },
+];
+
+const INITIAL_PIPELINE = [
+  { status: "Signed", count: 16 },
+  { status: "Interviewing", count: 6 },
+  { status: "Submitted to Practice", count: 5 },
+  { status: "Application Review", count: 79 },
+  { status: "Holding", count: 70 },
+  { status: "Recruiter Declined", count: 518 },
+  { status: "Practice Declined", count: 111 },
+  { status: "Candidate Declined", count: 49 },
+  { status: "Fall Off", count: 3 },
+];
+
+const INITIAL_BRAND_REQS = [
+  { brand: "Ever/Body", active: 10, filled: 0, closed: 0 },
+  { brand: "Avelure", active: 3, filled: 2, closed: 0 },
+  { brand: "22", active: 2, filled: 0, closed: 0 },
+  { brand: "Curate", active: 1, filled: 1, closed: 0 },
+  { brand: "Living Young", active: 2, filled: 0, closed: 0 },
+  { brand: "New Radiance", active: 1, filled: 0, closed: 0 },
+  { brand: "Destination Aesthetics", active: 0, filled: 0, closed: 0 },
+  { brand: "Glo", active: 1, filled: 0, closed: 0 },
+  { brand: "Pur Skin Clinic", active: 1, filled: 0, closed: 0 },
+  { brand: "Synergy", active: 0, filled: 1, closed: 1 },
+  { brand: "Corporate", active: 1, filled: 1, closed: 0 },
+  { brand: "Blush", active: 0, filled: 0, closed: 0 },
+  { brand: "Back to 30", active: 0, filled: 0, closed: 0 },
+  { brand: "EsthetixMD", active: 0, filled: 1, closed: 0 },
+  { brand: "Nouveau", active: 0, filled: 1, closed: 0 },
+  { brand: "Reflections", active: 1, filled: 0, closed: 0 },
+  { brand: "SkynBar", active: 0, filled: 1, closed: 0 },
+  { brand: "Aesthetic Clinique", active: 0, filled: 1, closed: 0 },
+  { brand: "H-MD", active: 0, filled: 0, closed: 0 },
+  { brand: "The Ageless Center", active: 0, filled: 0, closed: 0 },
+  { brand: "Mainline", active: 0, filled: 0, closed: 0 },
+];
+
+const PIPELINE_COLORS = {
+  "Signed": "#2d6a4f", "Interviewing": "#40916c", "Submitted to Practice": "#52b788",
+  "Application Review": "#1a6faf", "Holding": "#4a8bbf", "Recruiter Declined": "#c9184a",
+  "Practice Declined": "#e05d5d", "Candidate Declined": "#d4786a", "Fall Off": "#9d5050",
+};
+
+const RECRUITER_COLORS = {
+  "Wells, JD": "#1a6faf", "Laccavole, Lauren": "#6b5b95", "Alleyne, Rodcliffe": "#2d6a4f",
+  "Nieves, Sarah": "#c17b2e", "Waters, Samantha": "#4a8bbf", "Kunstel, Sara": "#b55c3e",
+  "Dickerson, Amy": "#5c7a5e", "Taylor, Sheena": "#7b5ea7",
+};
+
+function StatCard({ label, value, sub, accent }) {
+  return (
+    <div style={{ background:"#fff", borderRadius:10, padding:"18px 22px", borderLeft:`4px solid ${accent||"#1a6faf"}`, boxShadow:"0 1px 6px rgba(0,0,0,0.07)", minWidth:140, flex:1 }}>
+      <div style={{ fontSize:28, fontWeight:700, color:accent||"#1a3a5c", fontFamily:"Georgia,serif", lineHeight:1 }}>{value}</div>
+      <div style={{ fontSize:12, color:"#6b7a8d", marginTop:5, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.04em" }}>{label}</div>
+      {sub && <div style={{ fontSize:11, color:"#9aa5b4", marginTop:2 }}>{sub}</div>}
+    </div>
+  );
+}
+
+function SectionHeader({ children }) {
+  return <div style={{ fontSize:11, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#1a3a5c", borderBottom:"2px solid #e8ecf0", paddingBottom:8, marginBottom:16, marginTop:28 }}>{children}</div>;
+}
+
+function DaysChip({ days }) {
+  const color = days >= 60 ? "#c9184a" : days >= 30 ? "#d4a017" : "#2d6a4f";
+  const bg = days >= 60 ? "#ffeef3" : days >= 30 ? "#fef9e7" : "#edfaf3";
+  return <span style={{ background:bg, color, borderRadius:20, padding:"2px 10px", fontSize:11, fontWeight:700 }}>{days}d</span>;
+}
+
+function Modal({ onClose, children }) {
+  return (
+    <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.35)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:1000 }} onClick={onClose}>
+      <div style={{ background:"#fff", borderRadius:14, padding:32, maxWidth:560, width:"90%", boxShadow:"0 8px 40px rgba(0,0,0,0.18)" }} onClick={e => e.stopPropagation()}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function Input({ label, value, onChange, type="text" }) {
+  return (
+    <div style={{ marginBottom:12 }}>
+      <label style={{ fontSize:11, fontWeight:700, color:"#6b7a8d", textTransform:"uppercase", letterSpacing:"0.05em", display:"block", marginBottom:4 }}>{label}</label>
+      <input type={type} value={value} onChange={e => onChange(e.target.value)}
+        style={{ width:"100%", padding:"8px 12px", borderRadius:7, border:"1.5px solid #d1d9e0", fontSize:13, fontFamily:"inherit", outline:"none", color:"#1a3a5c" }} />
+    </div>
+  );
+}
+
+function Sel({ label, value, onChange, options }) {
+  return (
+    <div style={{ marginBottom:12 }}>
+      <label style={{ fontSize:11, fontWeight:700, color:"#6b7a8d", textTransform:"uppercase", letterSpacing:"0.05em", display:"block", marginBottom:4 }}>{label}</label>
+      <select value={value} onChange={e => onChange(e.target.value)}
+        style={{ width:"100%", padding:"8px 12px", borderRadius:7, border:"1.5px solid #d1d9e0", fontSize:13, fontFamily:"inherit", background:"#fff", color:"#1a3a5c" }}>
+        {options.map(o => <option key={o}>{o}</option>)}
+      </select>
+    </div>
+  );
+}
+
+function App() {
+  const [tab, setTab] = useState("overview");
+  const [openReqs, setOpenReqs] = useState(INITIAL_OPEN_REQS);
+  const [pipeline, setPipeline] = useState(INITIAL_PIPELINE);
+  const [brandReqs, setBrandReqs] = useState(INITIAL_BRAND_REQS);
+  const [weekOf, setWeekOf] = useState("March 11, 2026");
+  const [showAddReq, setShowAddReq] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [newReq, setNewReq] = useState({ id:"", jobTitle:"", type:"Additional", recruiter:"", location:"", brand:"", days:0, lastActivity:"" });
+  const [filterBrand, setFilterBrand] = useState("All");
+  const [filterRecruiter, setFilterRecruiter] = useState("All");
+  const [copied, setCopied] = useState(false);
+
+  const totalOpen = openReqs.length;
+  const totalActive = useMemo(() => brandReqs.reduce((s,b) => s+b.active, 0), [brandReqs]);
+  const totalFilled = useMemo(() => brandReqs.reduce((s,b) => s+b.filled, 0), [brandReqs]);
+  const stalledReqs = useMemo(() => openReqs.filter(r => r.days >= 30).length, [openReqs]);
+  const pipelineActive = useMemo(() => {
+    const active = ["Signed","Interviewing","Submitted to Practice","Application Review","Holding"];
+    return pipeline.filter(p => active.includes(p.status)).reduce((s,p) => s+p.count, 0);
+  }, [pipeline]);
+
+  const brands = useMemo(() => ["All", ...Array.from(new Set(openReqs.map(r => r.brand))).sort()], [openReqs]);
+  const recruiters = useMemo(() => ["All", ...Array.from(new Set(openReqs.map(r => r.recruiter))).sort()], [openReqs]);
+  const filteredReqs = useMemo(() => openReqs.filter(r =>
+    (filterBrand === "All" || r.brand === filterBrand) &&
+    (filterRecruiter === "All" || r.recruiter === filterRecruiter)
+  ), [openReqs, filterBrand, filterRecruiter]);
+
+  const recruiterSummary = useMemo(() => {
+    const map = {};
+    openReqs.forEach(r => {
+      if (!map[r.recruiter]) map[r.recruiter] = { count:0, stalled:0 };
+      map[r.recruiter].count++;
+      if (r.days >= 30) map[r.recruiter].stalled++;
+    });
+    return Object.entries(map).sort((a,b) => b[1].count - a[1].count);
+  }, [openReqs]);
+
+  const topBrands = useMemo(() => brandReqs.filter(b => b.active > 0).sort((a,b) => b.active - a.active), [brandReqs]);
+
+  function handleAddReq() {
+    const req = { ...newReq, id: parseInt(newReq.id) || Date.now(), days: parseInt(newReq.days) || 0 };
+    setOpenReqs(prev => [req, ...prev]);
+    setBrandReqs(prev => {
+      const found = prev.find(b => b.brand === req.brand);
+      if (found) return prev.map(b => b.brand === req.brand ? { ...b, active: b.active+1 } : b);
+      return [...prev, { brand: req.brand, active:1, filled:0, closed:0 }];
+    });
+    setShowAddReq(false);
+    setNewReq({ id:"", jobTitle:"", type:"Additional", recruiter:"", location:"", brand:"", days:0, lastActivity:"" });
+  }
+
+  function handleDeleteReq(id) {
+    const req = openReqs.find(r => r.id === id);
+    setOpenReqs(prev => prev.filter(r => r.id !== id));
+    if (req) setBrandReqs(prev => prev.map(b => b.brand === req.brand && b.active > 0 ? { ...b, active: b.active-1 } : b));
+  }
+
+  const emailBody = `Subject: AMP Recruiting Weekly Update | Week of ${weekOf}
+
+Team,
+
+Here is the AMP recruiting snapshot for the week of ${weekOf}.
+
+────────────────────────────────────
+OPEN REQUISITIONS SUMMARY
+────────────────────────────────────
+Total Posted Reqs:     ${totalOpen}
+Active Reqs:           ${totalActive}
+Filled (YTD):          ${totalFilled}
+Stalled (30+ days):    ${stalledReqs}
+
+TOP BRANDS BY OPEN REQS:
+${topBrands.slice(0,5).map(b => `  • ${b.brand}: ${b.active} open`).join("\n")}
+
+────────────────────────────────────
+PROVIDER CANDIDATE PIPELINE
+────────────────────────────────────
+Active Candidates:     ${pipelineActive}
+${pipeline.filter(p => ["Signed","Interviewing","Submitted to Practice"].includes(p.status)).map(p => `  • ${p.status}: ${p.count}`).join("\n")}
+
+────────────────────────────────────
+OPEN REQS BY RECRUITER
+────────────────────────────────────
+${recruiterSummary.map(([name,data]) => `  • ${name}: ${data.count} open req${data.count!==1?"s":""}${data.stalled>0?` (${data.stalled} stalled 30+ days)`:""}`).join("\n")}
+
+────────────────────────────────────
+OPEN REQUISITIONS DETAIL
+────────────────────────────────────
+${openReqs.map(r => `  Req #${r.id} | ${r.brand} | ${r.location} | ${r.jobTitle} | ${r.type} | ${r.days} days open | Recruiter: ${r.recruiter}`).join("\n")}
+
+────────────────────────────────────
+People & Culture | Advanced MedAesthetic Partners
+Week of ${weekOf}`;
+
+  const tabStyle = t => ({
+    padding:"9px 20px", borderRadius:7, border:"none", cursor:"pointer", fontWeight:600,
+    fontSize:12, letterSpacing:"0.04em", textTransform:"uppercase", fontFamily:"inherit",
+    background: tab===t ? "#1a3a5c" : "transparent",
+    color: tab===t ? "#fff" : "#6b7a8d",
+  });
+
+  return (
+    <div style={{ fontFamily:"'Palatino Linotype','Book Antiqua',Palatino,serif", background:"#f5f7fa", minHeight:"100vh", color:"#1a3a5c" }}>
+
+      {/* Header */}
+      <div style={{ background:"#1a3a5c", padding:"20px 32px", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
+        <div>
+          <div style={{ fontSize:11, color:"#8aaecf", fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", marginBottom:4, fontFamily:"Arial,sans-serif" }}>Advanced MedAesthetic Partners</div>
+          <div style={{ fontSize:22, fontWeight:700, color:"#fff" }}>Recruiting Dashboard</div>
+        </div>
+        <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+          <div style={{ textAlign:"right" }}>
+            <div style={{ fontSize:10, color:"#8aaecf", textTransform:"uppercase", letterSpacing:"0.08em", fontFamily:"Arial,sans-serif" }}>Week of</div>
+            <input value={weekOf} onChange={e => setWeekOf(e.target.value)}
+              style={{ background:"transparent", border:"none", color:"#fff", fontSize:14, fontWeight:600, fontFamily:"inherit", textAlign:"right", cursor:"pointer", outline:"none", width:160 }} />
+          </div>
+          <button onClick={() => setShowEmailModal(true)}
+            style={{ background:"#2d6a4f", border:"none", color:"#fff", borderRadius:8, padding:"9px 18px", fontWeight:700, fontSize:12, cursor:"pointer", letterSpacing:"0.04em", textTransform:"uppercase", fontFamily:"Arial,sans-serif" }}>
+            ✉ Send to ELT
+          </button>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{ background:"#fff", borderBottom:"1px solid #e4e9ee", padding:"10px 32px", display:"flex", gap:6, flexWrap:"wrap" }}>
+        {[["overview","Overview"],["reqs","Open Requisitions"],["pipeline","Provider Pipeline"],["brands","By Brand"]].map(([k,l]) => (
+          <button key={k} style={tabStyle(k)} onClick={() => setTab(k)}>{l}</button>
+        ))}
+      </div>
+
+      <div style={{ padding:"24px 32px", maxWidth:1200, margin:"0 auto" }}>
+
+        {/* OVERVIEW */}
+        {tab==="overview" && (
+          <div>
+            <div style={{ display:"flex", gap:16, flexWrap:"wrap" }}>
+              <StatCard label="Total Open Reqs" value={totalOpen} sub="Currently posted" accent="#1a6faf" />
+              <StatCard label="Active" value={totalActive} sub="Accepting candidates" accent="#2d6a4f" />
+              <StatCard label="Filled (YTD)" value={totalFilled} sub="Successfully placed" accent="#40916c" />
+              <StatCard label="Stalled 30+ Days" value={stalledReqs} sub="Need attention" accent="#c9184a" />
+              <StatCard label="Active Pipeline" value={pipelineActive} sub="Provider candidates" accent="#6b5b95" />
+            </div>
+
+            <SectionHeader>Open Reqs by Brand</SectionHeader>
+            <div style={{ display:"flex", flexWrap:"wrap", gap:10 }}>
+              {topBrands.map(b => (
+                <div key={b.brand} style={{ background:"#fff", borderRadius:8, padding:"10px 16px", boxShadow:"0 1px 4px rgba(0,0,0,0.06)", display:"flex", alignItems:"center", gap:10, border:"1px solid #e8ecf0" }}>
+                  <div style={{ background:"#1a3a5c", color:"#fff", borderRadius:6, width:32, height:32, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:700, fontSize:14 }}>{b.active}</div>
+                  <span style={{ fontSize:13, fontWeight:600, color:"#1a3a5c" }}>{b.brand}</span>
+                </div>
+              ))}
+            </div>
+
+            <SectionHeader>Recruiter Load</SectionHeader>
+            <div style={{ background:"#fff", borderRadius:10, boxShadow:"0 1px 6px rgba(0,0,0,0.06)", overflow:"hidden", border:"1px solid #e8ecf0" }}>
+              {recruiterSummary.map(([name, data], i) => {
+                const pct = Math.round((data.count/totalOpen)*100);
+                const color = RECRUITER_COLORS[name] || "#1a6faf";
+                return (
+                  <div key={name} style={{ display:"flex", alignItems:"center", gap:16, padding:"12px 20px", borderBottom: i<recruiterSummary.length-1 ? "1px solid #f0f3f6" : "none" }}>
+                    <div style={{ width:160, fontSize:13, fontWeight:600, color:"#1a3a5c", flexShrink:0 }}>{name}</div>
+                    <div style={{ flex:1, background:"#f0f3f6", borderRadius:20, height:8, overflow:"hidden" }}>
+                      <div style={{ width:`${pct}%`, background:color, height:"100%", borderRadius:20 }} />
+                    </div>
+                    <div style={{ width:30, textAlign:"right", fontWeight:700, fontSize:14, color }}>{data.count}</div>
+                    {data.stalled > 0 && <span style={{ fontSize:11, color:"#c9184a", fontWeight:600, background:"#ffeef3", borderRadius:20, padding:"2px 8px" }}>{data.stalled} stalled</span>}
+                  </div>
+                );
+              })}
+            </div>
+
+            <SectionHeader>Provider Pipeline Snapshot</SectionHeader>
+            <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
+              {pipeline.map(p => (
+                <div key={p.status} style={{ background:"#fff", border:"1px solid #e8ecf0", borderRadius:8, padding:"10px 16px", display:"flex", alignItems:"center", gap:10, boxShadow:"0 1px 4px rgba(0,0,0,0.05)" }}>
+                  <div style={{ width:8, height:8, borderRadius:"50%", background:PIPELINE_COLORS[p.status]||"#999", flexShrink:0 }} />
+                  <span style={{ fontSize:12, color:"#6b7a8d" }}>{p.status}</span>
+                  <span style={{ fontWeight:700, fontSize:15, color:"#1a3a5c", marginLeft:4 }}>{p.count}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* OPEN REQS */}
+        {tab==="reqs" && (
+          <div>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16, flexWrap:"wrap", gap:10 }}>
+              <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
+                <select value={filterBrand} onChange={e => setFilterBrand(e.target.value)}
+                  style={{ padding:"7px 12px", borderRadius:7, border:"1.5px solid #d1d9e0", fontSize:12, fontFamily:"inherit", color:"#1a3a5c" }}>
+                  {brands.map(b => <option key={b}>{b}</option>)}
+                </select>
+                <select value={filterRecruiter} onChange={e => setFilterRecruiter(e.target.value)}
+                  style={{ padding:"7px 12px", borderRadius:7, border:"1.5px solid #d1d9e0", fontSize:12, fontFamily:"inherit", color:"#1a3a5c" }}>
+                  {recruiters.map(r => <option key={r}>{r}</option>)}
+                </select>
+              </div>
+              <button onClick={() => setShowAddReq(true)}
+                style={{ background:"#1a3a5c", color:"#fff", border:"none", borderRadius:8, padding:"9px 18px", fontWeight:700, fontSize:12, cursor:"pointer", fontFamily:"inherit" }}>
+                + Add Requisition
+              </button>
+            </div>
+            <div style={{ background:"#fff", borderRadius:10, boxShadow:"0 1px 6px rgba(0,0,0,0.06)", overflow:"auto", border:"1px solid #e8ecf0" }}>
+              <table style={{ width:"100%", fontSize:12 }}>
+                <thead>
+                  <tr style={{ background:"#f5f7fa" }}>
+                    {["Req #","Brand","Location","Job Title","Type","Recruiter","Days Open","Last Activity",""].map(h => (
+                      <th key={h} style={{ padding:"10px 14px", textAlign:"left", fontWeight:700, fontSize:10, textTransform:"uppercase", letterSpacing:"0.07em", color:"#6b7a8d", borderBottom:"1px solid #e8ecf0", whiteSpace:"nowrap" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredReqs.map((r, i) => (
+                    <tr key={r.id} style={{ borderBottom:"1px solid #f0f3f6", background: i%2===0 ? "#fff" : "#fafbfc" }}>
+                      <td style={{ padding:"10px 14px", fontWeight:700, color:"#1a6faf", whiteSpace:"nowrap" }}>{r.id}</td>
+                      <td style={{ padding:"10px 14px", fontWeight:600, whiteSpace:"nowrap" }}>{r.brand}</td>
+                      <td style={{ padding:"10px 14px", color:"#6b7a8d" }}>{r.location}</td>
+                      <td style={{ padding:"10px 14px" }}>{r.jobTitle}</td>
+                      <td style={{ padding:"10px 14px", whiteSpace:"nowrap" }}>
+                        <span style={{ background: r.type==="Additional"?"#e8f4fd":"#f0f8f4", color: r.type==="Additional"?"#1a6faf":"#2d6a4f", borderRadius:20, padding:"2px 10px", fontSize:11, fontWeight:600 }}>{r.type}</span>
+                      </td>
+                      <td style={{ padding:"10px 14px", color:"#6b7a8d", whiteSpace:"nowrap" }}>{r.recruiter}</td>
+                      <td style={{ padding:"10px 14px", whiteSpace:"nowrap" }}><DaysChip days={r.days} /></td>
+                      <td style={{ padding:"10px 14px", color:"#9aa5b4", fontSize:11, whiteSpace:"nowrap" }}>{r.lastActivity||"—"}</td>
+                      <td style={{ padding:"10px 14px" }}>
+                        <button onClick={() => handleDeleteReq(r.id)} style={{ background:"none", border:"none", cursor:"pointer", color:"#c9184a", fontSize:18, padding:0, lineHeight:1 }}>×</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {filteredReqs.length===0 && <div style={{ padding:24, textAlign:"center", color:"#9aa5b4" }}>No requisitions match your filters.</div>}
+            </div>
+          </div>
+        )}
+
+        {/* PIPELINE */}
+        {tab==="pipeline" && (
+          <div>
+            <div style={{ fontSize:12, color:"#6b7a8d", marginBottom:20 }}>Update candidate counts below. Dashboard refreshes automatically.</div>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(240px,1fr))", gap:14 }}>
+              {pipeline.map(p => {
+                const color = PIPELINE_COLORS[p.status]||"#9aa5b4";
+                return (
+                  <div key={p.status} style={{ background:"#fff", borderRadius:10, padding:"16px 20px", boxShadow:"0 1px 6px rgba(0,0,0,0.06)", border:"1px solid #e8ecf0", borderTop:`3px solid ${color}` }}>
+                    <div style={{ fontSize:12, fontWeight:700, color:"#1a3a5c", marginBottom:10 }}>{p.status}</div>
+                    <input type="number" value={p.count}
+                      onChange={e => setPipeline(prev => prev.map(x => x.status===p.status ? {...x, count: parseInt(e.target.value)||0} : x))}
+                      style={{ width:"100%", fontSize:28, fontWeight:700, color, border:"none", outline:"none", fontFamily:"Georgia,serif", background:"transparent" }} />
+                    <div style={{ fontSize:11, color:"#9aa5b4", marginTop:4 }}>candidates</div>
+                  </div>
+                );
+              })}
+            </div>
+            <SectionHeader>Pipeline Visual</SectionHeader>
+            <div style={{ background:"#fff", borderRadius:10, padding:20, boxShadow:"0 1px 6px rgba(0,0,0,0.06)", border:"1px solid #e8ecf0" }}>
+              {pipeline.map(p => {
+                const total = pipeline.reduce((s,x) => s+x.count, 0);
+                const pct = total > 0 ? Math.round((p.count/total)*100) : 0;
+                const color = PIPELINE_COLORS[p.status]||"#9aa5b4";
+                return (
+                  <div key={p.status} style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10 }}>
+                    <div style={{ width:180, fontSize:12, color:"#6b7a8d", fontWeight:600, textAlign:"right", flexShrink:0 }}>{p.status}</div>
+                    <div style={{ flex:1, background:"#f0f3f6", borderRadius:20, height:18, overflow:"hidden" }}>
+                      <div style={{ width:`${pct}%`, background:color, height:"100%", borderRadius:20, display:"flex", alignItems:"center", paddingLeft:8 }}>
+                        {pct > 5 && <span style={{ fontSize:10, fontWeight:700, color:"#fff" }}>{pct}%</span>}
+                      </div>
+                    </div>
+                    <div style={{ width:40, fontWeight:700, fontSize:13, color, textAlign:"right" }}>{p.count}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* BRANDS */}
+        {tab==="brands" && (
+          <div>
+            <div style={{ fontSize:12, color:"#6b7a8d", marginBottom:20 }}>Update req counts by brand and status below.</div>
+            <div style={{ background:"#fff", borderRadius:10, boxShadow:"0 1px 6px rgba(0,0,0,0.06)", overflow:"auto", border:"1px solid #e8ecf0" }}>
+              <table style={{ width:"100%" }}>
+                <thead>
+                  <tr style={{ background:"#1a3a5c" }}>
+                    {["Brand","Active","Filled","Closed","Total"].map(h => (
+                      <th key={h} style={{ padding:"12px 16px", textAlign: h==="Brand"?"left":"center", fontWeight:700, fontSize:11, textTransform:"uppercase", letterSpacing:"0.07em", color:"#8aaecf" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {brandReqs.map((b, i) => {
+                    const total = b.active+b.filled+b.closed;
+                    return (
+                      <tr key={b.brand} style={{ borderBottom:"1px solid #f0f3f6", background: i%2===0?"#fff":"#fafbfc" }}>
+                        <td style={{ padding:"10px 16px", fontWeight:600 }}>{b.brand}</td>
+                        {["active","filled","closed"].map(key => (
+                          <td key={key} style={{ padding:"10px 16px", textAlign:"center" }}>
+                            <input type="number" value={b[key]}
+                              onChange={e => setBrandReqs(prev => prev.map(br => br.brand===b.brand ? {...br, [key]: parseInt(e.target.value)||0} : br))}
+                              style={{ width:56, textAlign:"center", border:"1.5px solid #e8ecf0", borderRadius:6, padding:"4px 6px", fontSize:13, fontWeight:700, fontFamily:"inherit", color: key==="active"?"#1a6faf": key==="filled"?"#2d6a4f":"#6b7a8d" }} />
+                          </td>
+                        ))}
+                        <td style={{ padding:"10px 16px", textAlign:"center", fontWeight:700, color:"#1a3a5c" }}>{total}</td>
+                      </tr>
+                    );
+                  })}
+                  <tr style={{ background:"#f5f7fa" }}>
+                    <td style={{ padding:"12px 16px", fontWeight:700 }}>TOTAL</td>
+                    <td style={{ padding:"12px 16px", textAlign:"center", color:"#1a6faf", fontWeight:700 }}>{brandReqs.reduce((s,b)=>s+b.active,0)}</td>
+                    <td style={{ padding:"12px 16px", textAlign:"center", color:"#2d6a4f", fontWeight:700 }}>{brandReqs.reduce((s,b)=>s+b.filled,0)}</td>
+                    <td style={{ padding:"12px 16px", textAlign:"center", color:"#6b7a8d", fontWeight:700 }}>{brandReqs.reduce((s,b)=>s+b.closed,0)}</td>
+                    <td style={{ padding:"12px 16px", textAlign:"center", fontWeight:700 }}>{brandReqs.reduce((s,b)=>s+b.active+b.filled+b.closed,0)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ADD REQ MODAL */}
+      {showAddReq && (
+        <Modal onClose={() => setShowAddReq(false)}>
+          <div style={{ fontWeight:700, fontSize:16, color:"#1a3a5c", marginBottom:20 }}>Add Requisition</div>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0 16px" }}>
+            <Input label="Req ID" value={newReq.id} onChange={v => setNewReq(p=>({...p,id:v}))} />
+            <Input label="Brand" value={newReq.brand} onChange={v => setNewReq(p=>({...p,brand:v}))} />
+            <div style={{ gridColumn:"1/-1" }}><Input label="Job Title" value={newReq.jobTitle} onChange={v => setNewReq(p=>({...p,jobTitle:v}))} /></div>
+            <Input label="Location" value={newReq.location} onChange={v => setNewReq(p=>({...p,location:v}))} />
+            <Input label="Recruiter" value={newReq.recruiter} onChange={v => setNewReq(p=>({...p,recruiter:v}))} />
+            <Sel label="Type" value={newReq.type} onChange={v => setNewReq(p=>({...p,type:v}))} options={["Additional","Replacement"]} />
+            <Input label="Days Open" value={newReq.days} onChange={v => setNewReq(p=>({...p,days:v}))} type="number" />
+            <div style={{ gridColumn:"1/-1" }}><Input label="Last Activity Date" value={newReq.lastActivity} onChange={v => setNewReq(p=>({...p,lastActivity:v}))} /></div>
+          </div>
+          <div style={{ display:"flex", gap:10, justifyContent:"flex-end", marginTop:8 }}>
+            <button onClick={() => setShowAddReq(false)} style={{ background:"#f0f3f6", border:"none", borderRadius:8, padding:"9px 18px", fontWeight:600, fontSize:13, cursor:"pointer", fontFamily:"inherit", color:"#6b7a8d" }}>Cancel</button>
+            <button onClick={handleAddReq} style={{ background:"#1a3a5c", color:"#fff", border:"none", borderRadius:8, padding:"9px 20px", fontWeight:700, fontSize:13, cursor:"pointer", fontFamily:"inherit" }}>Add Requisition</button>
+          </div>
+        </Modal>
+      )}
+
+      {/* EMAIL MODAL */}
+      {showEmailModal && (
+        <Modal onClose={() => setShowEmailModal(false)}>
+          <div style={{ fontWeight:700, fontSize:16, color:"#1a3a5c", marginBottom:6 }}>Weekly ELT Email</div>
+          <div style={{ fontSize:12, color:"#6b7a8d", marginBottom:14 }}>Copy this and paste into your email to ELT.</div>
+          <textarea readOnly value={emailBody}
+            style={{ width:"100%", height:300, fontSize:11.5, fontFamily:"monospace", padding:14, borderRadius:8, border:"1.5px solid #d1d9e0", resize:"vertical", color:"#1a3a5c", background:"#f9fafb" }} />
+          <div style={{ display:"flex", gap:10, justifyContent:"flex-end", marginTop:12 }}>
+            <button onClick={() => setShowEmailModal(false)} style={{ background:"#f0f3f6", border:"none", borderRadius:8, padding:"9px 18px", fontWeight:600, fontSize:13, cursor:"pointer", fontFamily:"inherit", color:"#6b7a8d" }}>Close</button>
+            <button onClick={() => { navigator.clipboard.writeText(emailBody); setCopied(true); setTimeout(()=>setCopied(false),2000); }}
+              style={{ background: copied ? "#2d6a4f" : "#1a3a5c", color:"#fff", border:"none", borderRadius:8, padding:"9px 20px", fontWeight:700, fontSize:13, cursor:"pointer", fontFamily:"inherit", transition:"background 0.2s" }}>
+              {copied ? "✓ Copied!" : "Copy to Clipboard"}
+            </button>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
