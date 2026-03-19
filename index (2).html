@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMP Recruiting Dashboard | March 19, 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f5f7fa;color:#1a3a5c;font-size:13px}
+.hdr{background:#1a3a5c;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.hdr-title{font-size:20px;font-weight:700;color:#fff}
+.hdr-sub{font-size:10px;color:#8aaecf;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px}
+.hdr-week{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#fff;font-size:12px;padding:5px 10px;font-family:Arial;cursor:pointer;outline:none}
+.elt-btn{background:#2d6a4f;border:none;color:#fff;border-radius:6px;padding:7px 16px;font-weight:700;font-size:11px;cursor:pointer;text-transform:uppercase;letter-spacing:.05em}
+.tabs{background:#fff;border-bottom:1px solid #e8ecf0;padding:8px 24px;display:flex;gap:4px}
+.tab{padding:7px 18px;border-radius:6px;border:none;cursor:pointer;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.05em;background:transparent;color:#6b7a8d}
+.tab.active{background:#1a3a5c;color:#fff}
+.body{padding:20px 24px}
+.cards{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+.card{background:#fff;border-radius:8px;padding:14px 16px;flex:1;min-width:140px;border:1px solid #e8ecf0;border-top:3px solid}
+.card-val{font-size:32px;font-weight:700;line-height:1}
+.card-lbl{font-size:10px;color:#6b7a8d;margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
+.card-sub{font-size:10px;color:#9aa5b4;margin-top:2px}
+.sec{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#6b7a8d;border-bottom:1px solid #e8ecf0;padding-bottom:6px;margin:20px 0 12px}
+.brand-chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:#fff;border:1px solid #e8ecf0;border-radius:6px;padding:6px 12px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700}
+.chip-num{background:#1a3a5c;color:#fff;border-radius:4px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.rec-row{display:flex;align-items:center;gap:12px;padding:8px 16px;border-bottom:1px solid #e8ecf0}
+.rec-row:last-child{border-bottom:none}
+.rec-name{width:165px;font-size:12px;font-weight:700;flex-shrink:0}
+.bar-bg{flex:1;background:#f0f2f5;border-radius:20px;height:8px;overflow:hidden}
+.bar-fill{height:100%;border-radius:20px}
+.rec-count{width:24px;text-align:right;font-weight:700;font-size:14px}
+.stalled{font-size:10px;color:#c9184a;background:#ffeef3;border-radius:20px;padding:2px 8px;font-weight:700}
+.pipe-chips{display:flex;flex-wrap:wrap;gap:6px}
+.pchip{background:#fff;border:1px solid #e8ecf0;border-radius:6px;padding:6px 12px;display:flex;align-items:center;gap:7px;font-size:11px}
+.pdot{width:8px;height:8px;border-radius:50%}
+.pcount{font-weight:700;font-size:14px;margin-left:2px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:9px 10px;text-align:left;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#fff;background:#1a3a5c;border-right:1px solid rgba(255,255,255,.15);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid #e8ecf0}
+tr:last-child td{border-bottom:none}
+tr:nth-child(even) td{background:#f9fafb}
+.days-chip{border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700}
+.days-red{background:#ffeef3;color:#c9184a}
+.days-yellow{background:#fef9e7;color:#b7860a}
+.days-green{background:#edfaf3;color:#2d6a4f}
+.type-add{background:#e8f4fd;color:#185fa5;border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700}
+.type-rep{background:#eaf3de;color:#3b6d11;border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700}
+.del-btn{background:none;border:none;cursor:pointer;color:#bbb;font-size:16px;padding:0;line-height:1}
+.del-btn:hover{color:#c9184a}
+.tbl-wrap{background:#fff;border:1px solid #e8ecf0;border-radius:8px;overflow:auto}
+.rec-block{background:#fff;border:1px solid #e8ecf0;border-radius:8px;overflow:hidden}
+.filter-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.add-btn{background:#1a3a5c;color:#fff;border:none;border-radius:6px;padding:7px 16px;font-weight:700;font-size:11px;cursor:pointer}
+select,input[type=text]{font-size:12px;padding:6px 9px;border:1px solid #d1d9e6;border-radius:6px;background:#fff;color:#1a3a5c;font-family:Arial}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:200}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:12px;padding:24px;max-width:500px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.18)}
+.modal-title{font-size:15px;font-weight:700;margin-bottom:16px;color:#1a3a5c}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.form-full{grid-column:1/-1}
+.form-lbl{font-size:10px;font-weight:700;color:#6b7a8d;text-transform:uppercase;letter-spacing:.05em;display:block;margin:10px 0 3px}
+.form-grid input,.form-grid select{width:100%;font-size:12px;padding:6px 9px;border:1px solid #d1d9e6;border-radius:6px;font-family:Arial}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.cancel-btn{background:#f0f2f5;border:1px solid #e8ecf0;border-radius:6px;padding:7px 16px;font-weight:700;font-size:12px;cursor:pointer;color:#6b7a8d;font-family:Arial}
+.confirm-btn{background:#1a3a5c;color:#fff;border:none;border-radius:6px;padding:7px 16px;font-weight:700;font-size:12px;cursor:pointer;font-family:Arial}
+.email-area{width:100%;height:260px;font-size:11px;font-family:monospace;padding:10px;border-radius:6px;border:1px solid #d1d9e6;background:#f9fafb;color:#1a3a5c;resize:vertical}
+.copy-btn{background:#2d6a4f;color:#fff;border:none;border-radius:6px;padding:7px 16px;font-weight:700;font-size:12px;cursor:pointer;font-family:Arial}
+.pipe-vis-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.pipe-lbl{width:180px;font-size:11px;color:#6b7a8d;font-weight:700;text-align:right;flex-shrink:0}
+.pipe-bar-bg{flex:1;background:#f0f2f5;border-radius:20px;height:16px;overflow:hidden}
+.pipe-bar{height:100%;border-radius:20px;display:flex;align-items:center;padding-left:7px;min-width:4px}
+.pipe-count{width:36px;font-weight:700;font-size:12px;text-align:right}
+.pipe-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:4px}
+.pcard{background:#fff;border:1px solid #e8ecf0;border-radius:8px;padding:12px 14px}
+.pcard-lbl{font-size:11px;font-weight:700;margin-bottom:8px}
+.pcard-val{font-size:26px;font-weight:700}
+.pcard-sub{font-size:10px;color:#9aa5b4;margin-top:2px}
+.pcard input[type=number]{font-size:26px;font-weight:700;border:none;outline:none;background:transparent;width:100%;font-family:Arial}
+.brand-tbl input{width:50px;text-align:center;font-size:12px;font-weight:700;padding:3px 4px;border:1px solid #e8ecf0;border-radius:4px}
+.brand-tbl th,.brand-tbl td{text-align:center}
+.brand-tbl th:first-child,.brand-tbl td:first-child{text-align:left}
+.brand-tbl tr.total-row td{font-weight:700;background:#f0f2f5}
+.new-badge{background:#dcfce7;color:#166534;border-radius:4px;font-size:9px;font-weight:700;padding:1px 5px;margin-left:4px;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <div class="hdr-sub">Advanced MedAesthetic Partners</div>
+    <div class="hdr-title">Recruiting Dashboard</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="text-align:right">
+      <div style="font-size:9px;color:#8aaecf;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px">Week of</div>
+      <input class="hdr-week" id="weekInput" value="March 19, 2026" style="width:150px">
+    </div>
+    <button class="elt-btn" onclick="showEmail()">✉ Send to ELT</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('overview',this)">Overview</button>
+  <button class="tab" onclick="switchTab('reqs',this)">Open Reqs</button>
+  <button class="tab" onclick="switchTab('pipeline',this)">Pipeline</button>
+  <button class="tab" onclick="switchTab('brands',this)">By Brand</button>
+</div>
+
+<div class="body">
+  <div id="tab-overview">
+    <div class="cards" id="statCards"></div>
+    <div class="sec">Open reqs by brand</div>
+    <div class="brand-chips" id="brandChips"></div>
+    <div class="sec">Recruiter load</div>
+    <div class="rec-block" id="recLoad"></div>
+    <div class="sec">Provider pipeline snapshot</div>
+    <div class="pipe-chips" id="pipeChips"></div>
+  </div>
+  <div id="tab-reqs" style="display:none">
+    <div class="filter-row">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <select id="filterBrand" onchange="renderReqsTab()"></select>
+        <select id="filterRec" onchange="renderReqsTab()"></select>
+      </div>
+      <button class="add-btn" onclick="showAddModal()">+ Add Requisition</button>
+    </div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>Req #</th><th>Brand</th><th>Location</th><th>Job Title</th><th>Type</th><th>Recruiter</th><th>Days</th><th></th></tr></thead>
+      <tbody id="reqsTbody"></tbody></table>
+    </div>
+  </div>
+  <div id="tab-pipeline" style="display:none">
+    <div class="pipe-cards" id="pipeCards"></div>
+    <div class="sec">Pipeline visual</div>
+    <div id="pipeVis"></div>
+  </div>
+  <div id="tab-brands" style="display:none">
+    <div class="tbl-wrap">
+      <table class="brand-tbl"><thead><tr><th>Brand</th><th>Active</th><th>Filled</th><th>Closed</th><th>Total</th></tr></thead>
+      <tbody id="brandTbody"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- Add Modal -->
+<div class="modal-bg" id="addModal">
+  <div class="modal">
+    <div class="modal-title">Add Requisition</div>
+    <div class="form-grid">
+      <div><label class="form-lbl">Req ID</label><input id="nId" placeholder="4065"></div>
+      <div><label class="form-lbl">Brand</label><input id="nBrand" placeholder="Ever/Body"></div>
+      <div class="form-full"><label class="form-lbl">Job Title</label><input id="nTitle" placeholder="Aesthetics Injector PA/NP/RN" style="width:100%"></div>
+      <div><label class="form-lbl">Location</label><input id="nLoc" placeholder="Ever Body - Hartford"></div>
+      <div><label class="form-lbl">Recruiter</label><input id="nRec" placeholder="Wells, JD"></div>
+      <div><label class="form-lbl">Type</label><select id="nType"><option>Additional</option><option>Replacement</option></select></div>
+      <div><label class="form-lbl">Days Open</label><input id="nDays" type="number" value="1"></div>
+    </div>
+    <div class="modal-btns">
+      <button class="cancel-btn" onclick="hideAdd()">Cancel</button>
+      <button class="confirm-btn" onclick="addReq()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- Email Modal -->
+<div class="modal-bg" id="emailModal">
+  <div class="modal" style="max-width:540px">
+    <div class="modal-title">Weekly ELT Email</div>
+    <p style="font-size:11px;color:#6b7a8d;margin-bottom:10px">Copy and paste into Outlook.</p>
+    <textarea class="email-area" id="emailBody" readonly></textarea>
+    <div class="modal-btns">
+      <button class="cancel-btn" onclick="hideEmail()">Close</button>
+      <button class="copy-btn" id="copyBtn" onclick="copyEmail()">Copy to Clipboard</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var reqs=[
+  {id:3047,title:"Aesthetics Injector PA/NP/RN",type:"Additional",rec:"Alleyne, Rodcliffe",loc:"Ever Body - Williamsburg",brand:"Ever/Body",days:163,isNew:false},
+  {id:3405,title:"Injector",type:"Replacement",rec:"Wells, JD",loc:"Avelure - Rochester Hills",brand:"Avelure",days:77,isNew:false},
+  {id:3441,title:"Aesthetics Injector PA/NP/RN",type:"Replacement",rec:"Wells, JD",loc:"Ever Body - North Haven",brand:"Ever/Body",days:48,isNew:false},
+  {id:3481,title:"Aesthetics Injector PA/NP/RN",type:"Replacement",rec:"Wells, JD",loc:"Ever Body - Logan Circle",brand:"Ever/Body",days:48,isNew:false},
+  {id:3488,title:"Aesthetics Injector PA/NP/RN",type:"Additional",rec:"Wells, JD",loc:"Ever Body - Williamsburg",brand:"Ever/Body",days:48,isNew:false},
+  {id:3508,title:"Aesthetics Injector PA/NP/RN",type:"Replacement",rec:"Wells, JD",loc:"Ever Body - Stamford",brand:"Ever/Body",days:48,isNew:false},
+  {id:3525,title:"Experienced Nurse Injector",type:"Additional",rec:"Waters, Samantha",loc:"Destination Aesthetics - Folsom",brand:"Destination Aesthetics",days:49,isNew:false},
+  {id:3530,title:"Per-Diem PACU Registered Nurse",type:"Additional",rec:"Wells, JD",loc:"New Radiance - PBG",brand:"New Radiance",days:42,isNew:false},
+  {id:3531,title:"Per-Diem CRNA",type:"Additional",rec:"Wells, JD",loc:"New Radiance - PBG",brand:"New Radiance",days:42,isNew:false},
+  {id:3641,title:"Aesthetics Injector PA/NP/RN",type:"Additional",rec:"Laccavole, Lauren",loc:"Ever Body - South Windsor",brand:"Ever/Body",days:29,isNew:false},
+  {id:3642,title:"Aesthetics Injector PA/NP/RN",type:"Additional",rec:"Laccavole, Lauren",loc:"Ever Body - Hartford",brand:"Ever/Body",days:29,isNew:false},
+  {id:3721,title:"Registered Nurse",type:"Replacement",rec:"Nieves, Sarah",loc:"Avelure - Novi",brand:"Avelure",days:20,isNew:false},
+  {id:3746,title:"Aesthetics Injector PA/NP/RN",type:"Additional",rec:"Wells, JD",loc:"Curate - Chattanooga",brand:"Curate",days:43,isNew:false},
+  {id:3832,title:"Experienced Aesthetics Injector PA/NP",type:"Additional",rec:"Wells, JD",loc:"Pur Skin Clinic - Edmonds",brand:"Pur Skin Clinic",days:34,isNew:false},
+  {id:3849,title:"Registered Nurse",type:"Replacement",rec:"Wells, JD",loc:"Avelure - Creve Coeur",brand:"Avelure",days:28,isNew:false},
+  {id:3882,title:"Breast & Body Plastic Surgeon",type:"Replacement",rec:"Dickerson, Amy",loc:"22 Spa MD",brand:"22",days:24,isNew:false},
+  {id:3901,title:"Experienced Aesthetic Injector",type:"Additional",rec:"Taylor, Sheena",loc:"Living Young - Seminole",brand:"Living Young",days:22,isNew:false},
+  {id:3902,title:"Cosmetic Surgeon / Plastic Surgeon",type:"Additional",rec:"Wells, JD",loc:"New Radiance - PBG",brand:"New Radiance",days:21,isNew:false},
+  {id:3973,title:"Experienced Aesthetic Injector PA/NP/RN",type:"Additional",rec:"Onica, Laura",loc:"Synergy - Yakima",brand:"Synergy",days:11,isNew:false},
+  {id:4059,title:"Aesthetic Wellness Provider",type:"Additional",rec:"Rogers, Julie",loc:"Glo - Winterville",brand:"Glo",days:3,isNew:true},
+  {id:4064,title:"Surgical / Aesthetic Nurse Practitioner",type:"Additional",rec:"Dickerson, Amy",loc:"22 Spa MD",brand:"22",days:3,isNew:true},
+];
+
+var pipe=[
+  {status:"Signed",count:15,color:"#2d6a4f"},
+  {status:"Interviewing",count:8,color:"#40916c"},
+  {status:"Submitted to Practice",count:4,color:"#52b788"},
+  {status:"Application Review",count:73,color:"#1a6faf"},
+  {status:"Holding",count:80,color:"#4a8bbf"},
+  {status:"Recruiter Declined",count:553,color:"#c9184a"},
+  {status:"Practice Declined",count:120,color:"#e05d5d"},
+  {status:"Candidate Declined",count:49,color:"#d4786a"},
+  {status:"Fall Off",count:3,color:"#9d5050"},
+];
+
+var brands=[
+  {brand:"Ever/Body",active:10,filled:0,closed:0},
+  {brand:"Avelure",active:3,filled:2,closed:0},
+  {brand:"22",active:2,filled:0,closed:0},
+  {brand:"Living Young",active:2,filled:0,closed:0},
+  {brand:"Curate",active:1,filled:1,closed:0},
+  {brand:"Glo",active:1,filled:0,closed:0},
+  {brand:"New Radiance",active:1,filled:0,closed:0},
+  {brand:"Pur Skin Clinic",active:1,filled:0,closed:0},
+  {brand:"Reflections",active:1,filled:0,closed:0},
+  {brand:"Corporate",active:1,filled:1,closed:0},
+  {brand:"Aesthetic Clinique",active:0,filled:1,closed:0},
+  {brand:"EsthetixMD",active:0,filled:1,closed:0},
+  {brand:"Nouveau",active:0,filled:1,closed:0},
+  {brand:"Synergy",active:0,filled:1,closed:1},
+  {brand:"SkynBar",active:0,filled:1,closed:0},
+];
+
+var recColors={"Wells, JD":"#1a6faf","Laccavole, Lauren":"#6b5b95","Alleyne, Rodcliffe":"#2d6a4f","Nieves, Sarah":"#c17b2e","Waters, Samantha":"#4a8bbf","Dickerson, Amy":"#5c7a5e","Taylor, Sheena":"#7b5ea7","Onica, Laura":"#b55c3e","Rogers, Julie":"#c1703a"};
+
+function W(){return document.getElementById('weekInput').value;}
+function totalActive(){return brands.reduce(function(s,b){return s+b.active;},0);}
+function totalFilled(){return brands.reduce(function(s,b){return s+b.filled;},0);}
+function stalled(){return reqs.filter(function(r){return r.days>=30;}).length;}
+function pipeActive(){return pipe.filter(function(p){return ["Signed","Interviewing","Submitted to Practice","Application Review","Holding"].indexOf(p.status)>-1;}).reduce(function(s,p){return s+p.count;},0);}
+
+function renderOverview(){
+  var stats=[
+    {lbl:"Total Open Reqs",val:reqs.length,sub:"Currently posted",color:"#1a6faf"},
+    {lbl:"Active",val:totalActive(),sub:"Accepting candidates",color:"#2d6a4f"},
+    {lbl:"Filled YTD",val:totalFilled(),sub:"Successfully placed",color:"#40916c"},
+    {lbl:"Stalled 30+ Days",val:stalled(),sub:"Need attention",color:"#c9184a"},
+    {lbl:"Active Pipeline",val:pipeActive(),sub:"Provider candidates",color:"#6b5b95"},
+  ];
+  document.getElementById('statCards').innerHTML=stats.map(function(s){
+    return '<div class="card" style="border-top-color:'+s.color+'"><div class="card-val" style="color:'+s.color+'">'+s.val+'</div><div class="card-lbl">'+s.lbl+'</div><div class="card-sub">'+s.sub+'</div></div>';
+  }).join('');
+  var topB=brands.filter(function(b){return b.active>0;}).sort(function(a,b){return b.active-a.active;});
+  document.getElementById('brandChips').innerHTML=topB.map(function(b){
+    return '<div class="chip"><div class="chip-num">'+b.active+'</div>'+b.brand+'</div>';
+  }).join('');
+  var map={};
+  reqs.forEach(function(r){if(!map[r.rec])map[r.rec]={count:0,stalled:0};map[r.rec].count++;if(r.days>=30)map[r.rec].stalled++;});
+  var sorted=Object.entries(map).sort(function(a,b){return b[1].count-a[1].count;});
+  document.getElementById('recLoad').innerHTML=sorted.map(function(e){
+    var n=e[0],d=e[1],pct=Math.round((d.count/reqs.length)*100),color=recColors[n]||'#1a6faf';
+    return '<div class="rec-row"><div class="rec-name">'+n+'</div><div class="bar-bg"><div class="bar-fill" style="width:'+pct+'%;background:'+color+'"></div></div><div class="rec-count" style="color:'+color+'">'+d.count+'</div>'+(d.stalled>0?'<span class="stalled">'+d.stalled+' stalled</span>':'')+'</div>';
+  }).join('');
+  document.getElementById('pipeChips').innerHTML=pipe.map(function(p){
+    return '<div class="pchip"><div class="pdot" style="background:'+p.color+'"></div><span style="color:#6b7a8d">'+p.status+'</span><span class="pcount">'+p.count+'</span></div>';
+  }).join('');
+}
+
+function renderReqsTab(){
+  var fb=document.getElementById('filterBrand').value;
+  var fr=document.getElementById('filterRec').value;
+  var allB=['All',...new Set(reqs.map(function(r){return r.brand;}))].sort(function(a,b){return a==='All'?-1:b==='All'?1:a.localeCompare(b);});
+  var allR=['All',...new Set(reqs.map(function(r){return r.rec;}))].sort(function(a,b){return a==='All'?-1:b==='All'?1:a.localeCompare(b);});
+  document.getElementById('filterBrand').innerHTML=allB.map(function(b){return '<option'+(b===fb?' selected':'')+'>'+b+'</option>';}).join('');
+  document.getElementById('filterRec').innerHTML=allR.map(function(r){return '<option'+(r===fr?' selected':'')+'>'+r+'</option>';}).join('');
+  var filtered=reqs.filter(function(r){return (fb==='All'||r.brand===fb)&&(fr==='All'||r.rec===fr);});
+  document.getElementById('reqsTbody').innerHTML=filtered.map(function(r){
+    var dc=r.days>=60?'days-red':r.days>=30?'days-yellow':'days-green';
+    var tc=r.type==='Additional'?'type-add':'type-rep';
+    return '<tr><td style="font-weight:700;color:#1a6faf">'+r.id+(r.isNew?'<span class="new-badge">New</span>':'')+'</td><td style="font-weight:700">'+r.brand+'</td><td style="color:#6b7a8d">'+r.loc+'</td><td>'+r.title+'</td><td><span class="'+tc+'">'+r.type+'</span></td><td style="color:#6b7a8d">'+r.rec+'</td><td><span class="days-chip '+dc+'">'+r.days+'d</span></td><td><button class="del-btn" onclick="delReq('+r.id+')">×</button></td></tr>';
+  }).join('');
+  if(!filtered.length)document.getElementById('reqsTbody').innerHTML='<tr><td colspan="8" style="text-align:center;color:#9aa5b4;padding:20px">No requisitions match filters.</td></tr>';
+}
+
+function renderPipeline(){
+  document.getElementById('pipeCards').innerHTML=pipe.map(function(p){
+    return '<div class="pcard" style="border-top:3px solid '+p.color+'"><div class="pcard-lbl">'+p.status+'</div><input type="number" value="'+p.count+'" style="color:'+p.color+'" onchange="updatePipe(\''+p.status+'\',this.value)"><div class="pcard-sub">candidates</div></div>';
+  }).join('');
+  renderPipeVis();
+}
+
+function renderPipeVis(){
+  var total=pipe.reduce(function(s,p){return s+p.count;},0);
+  document.getElementById('pipeVis').innerHTML=pipe.map(function(p){
+    var pct=total>0?Math.round((p.count/total)*100):0;
+    return '<div class="pipe-vis-row"><div class="pipe-lbl">'+p.status+'</div><div class="pipe-bar-bg"><div class="pipe-bar" style="width:'+Math.max(pct,0.5)+'%;background:'+p.color+'">'+(pct>5?'<span style="font-size:9px;font-weight:700;color:#fff">'+pct+'%</span>':'')+'</div></div><div class="pipe-count" style="color:'+p.color+'">'+p.count+'</div></div>';
+  }).join('');
+}
+
+function updatePipe(status,val){
+  pipe.forEach(function(p){if(p.status===status)p.count=parseInt(val)||0;});
+  renderPipeVis();renderOverview();
+}
+
+function renderBrands(){
+  document.getElementById('brandTbody').innerHTML=brands.map(function(b){
+    var t=b.active+b.filled+b.closed;
+    return '<tr><td style="font-weight:700">'+b.brand+'</td><td><input value="'+b.active+'" onchange="updateBrand(\''+b.brand+'\',\'active\',this.value)" style="color:#1a6faf"></td><td><input value="'+b.filled+'" onchange="updateBrand(\''+b.brand+'\',\'filled\',this.value)" style="color:#2d6a4f"></td><td><input value="'+b.closed+'" onchange="updateBrand(\''+b.brand+'\',\'closed\',this.value)"></td><td style="font-weight:700">'+t+'</td></tr>';
+  }).join('')+'<tr class="total-row"><td>Total</td><td style="color:#1a6faf">'+brands.reduce(function(s,b){return s+b.active;},0)+'</td><td style="color:#2d6a4f">'+brands.reduce(function(s,b){return s+b.filled;},0)+'</td><td>'+brands.reduce(function(s,b){return s+b.closed;},0)+'</td><td>'+brands.reduce(function(s,b){return s+b.active+b.filled+b.closed;},0)+'</td></tr>';
+}
+
+function updateBrand(name,key,val){brands.forEach(function(b){if(b.brand===name)b[key]=parseInt(val)||0;});renderBrands();renderOverview();}
+
+function switchTab(t,el){
+  ['overview','reqs','pipeline','brands'].forEach(function(id){document.getElementById('tab-'+id).style.display='none';});
+  document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('tab-'+t).style.display='block';
+  el.classList.add('active');
+  if(t==='reqs')renderReqsTab();
+  if(t==='pipeline')renderPipeline();
+  if(t==='brands')renderBrands();
+}
+
+function delReq(id){reqs=reqs.filter(function(r){return r.id!==id;});renderReqsTab();renderOverview();}
+function showAddModal(){document.getElementById('addModal').classList.add('open');}
+function hideAdd(){document.getElementById('addModal').classList.remove('open');}
+function addReq(){
+  var r={id:parseInt(document.getElementById('nId').value)||Date.now(),title:document.getElementById('nTitle').value,type:document.getElementById('nType').value,rec:document.getElementById('nRec').value,loc:document.getElementById('nLoc').value,brand:document.getElementById('nBrand').value,days:parseInt(document.getElementById('nDays').value)||0,isNew:true};
+  reqs.unshift(r);
+  var found=brands.find(function(b){return b.brand===r.brand;});
+  if(found)found.active++;else brands.push({brand:r.brand,active:1,filled:0,closed:0});
+  hideAdd();renderReqsTab();renderOverview();
+}
+
+function showEmail(){
+  var topB=brands.filter(function(b){return b.active>0;}).sort(function(a,b){return b.active-a.active;});
+  var map={};reqs.forEach(function(r){if(!map[r.rec])map[r.rec]={count:0,stalled:0};map[r.rec].count++;if(r.days>=30)map[r.rec].stalled++;});
+  var recLines=Object.entries(map).sort(function(a,b){return b[1].count-a[1].count;}).map(function(e){return '  • '+e[0]+': '+e[1].count+' open req'+(e[1].count!==1?'s':'')+(e[1].stalled>0?' ('+e[1].stalled+' stalled 30+ days)':'');}).join('\n');
+  var body='Subject: AMP Recruiting Weekly Update | Week of '+W()+'\n\nTeam,\n\nHere is the AMP recruiting snapshot for the week of '+W()+'.\n\n────────────────────────────────────\nOPEN REQUISITIONS SUMMARY\n────────────────────────────────────\nTotal Posted Reqs:     '+reqs.length+'\nActive Reqs:           '+totalActive()+'\nFilled (YTD):          '+totalFilled()+'\nStalled (30+ days):    '+stalled()+'\n\nTOP BRANDS BY OPEN REQS:\n'+topB.slice(0,6).map(function(b){return '  • '+b.brand+': '+b.active+' open';}).join('\n')+'\n\n────────────────────────────────────\nPROVIDER PIPELINE\n────────────────────────────────────\nActive Candidates:     '+pipeActive()+'\n'+pipe.filter(function(p){return ["Signed","Interviewing","Submitted to Practice"].indexOf(p.status)>-1;}).map(function(p){return '  • '+p.status+': '+p.count;}).join('\n')+'\n\n────────────────────────────────────\nOPEN REQS BY RECRUITER\n────────────────────────────────────\n'+recLines+'\n\n────────────────────────────────────\nOPEN REQUISITIONS DETAIL\n────────────────────────────────────\n'+reqs.map(function(r){return '  Req #'+r.id+' | '+r.brand+' | '+r.loc+' | '+r.title+' | '+r.type+' | '+r.days+'d open | '+r.rec;}).join('\n')+'\n\n────────────────────────────────────\nPeople & Culture | Advanced MedAesthetic Partners\nWeek of '+W();
+  document.getElementById('emailBody').value=body;
+  document.getElementById('emailModal').classList.add('open');
+}
+function hideEmail(){document.getElementById('emailModal').classList.remove('open');}
+function copyEmail(){
+  navigator.clipboard.writeText(document.getElementById('emailBody').value);
+  var btn=document.getElementById('copyBtn');btn.textContent='✓ Copied!';
+  setTimeout(function(){btn.textContent='Copy to Clipboard';},2000);
+}
+
+renderOverview();
+</script>
+</body>
+</html>
